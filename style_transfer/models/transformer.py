@@ -4,10 +4,10 @@ import tensorflow_addons as tfa
 from .blocks import ConvolutionBlock, UpsampleBlock, ResidualBlock
 
 
-class TransformerNet(tf.keras.Model):
+class TransformerModel(tf.keras.Model):
 
     def __init__(self):
-        super(TransformerNet, self).__init__()
+        super(TransformerModel, self).__init__()
         self.conv1 = ConvolutionBlock(32, kernel_size=9, strides=1)
         self.norm1 = tfa.layers.InstanceNormalization()
         self.conv2 = ConvolutionBlock(64, kernel_size=3, strides=2)

@@ -1,0 +1,5 @@
+matplotlib==3.3.4
+streamlit==0.76.0
+tensorflow==2.4.1
+tensorflow-addons==0.12.1
+tensorflow-datasets==4.2.0

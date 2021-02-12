@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-def read_img(image_file):
+def read_image(image_file):
     image = tf.io.read_file(image_file)
     image = tf.image.decode_image(image, channels=3)
     image = tf.cast(image, tf.float32)
