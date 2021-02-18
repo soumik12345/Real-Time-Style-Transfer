@@ -1,16 +1,15 @@
-# This is a sample Python script.
-
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+from style_transfer import Trainer
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+trainer = Trainer(
+    experiment_name='experiment_1',
+    wandb_api_key='696969696969696969699999696969696',
+    style_image_file='324310.jpg', sample_content_image_file='5726.jpg',
+    style_weight=10.0, content_weight=10.0, content_layers=['block2_conv2'],
+    style_layers=['block1_conv2', 'block2_conv2', 'block3_conv3', 'block4_conv3']
+)
 
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+trainer.compile(
+    dataset_name='coco/2014', image_size=256,
+    batch_size=16, learning_rate=1e-3
+)

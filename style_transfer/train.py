@@ -1,3 +1,5 @@
+import os
+import wandb
 from tqdm import tqdm
 from typing import List
 import tensorflow as tf
@@ -11,11 +13,12 @@ from .models import StyleContentModel, TransformerModel
 class Trainer:
 
     def __init__(
-            self, experiment_name: str,
+            self, experiment_name: str, wandb_api_key: str,
             style_image_file: str, sample_content_image_file: str,
             style_weight: float, content_weight: float,
             content_layers: List[str], style_layers: List[str]):
         self.experiment_name = experiment_name
+        self.wandb_api_key = wandb_api_key
         self.style_image = read_image(image_file=style_image_file)
         self.sample_content_image = read_image(image_file=sample_content_image_file)
         self.content_layers = content_layers
@@ -28,6 +31,13 @@ class Trainer:
         self.optimizer, self.summary_writer = None, None
         self.checkpoint, self.checkpoint_manager = None, None
         self.train_loss, self.train_content_loss, self.train_style_loss = None, None, None
+
+    def _init_wandb(self):
+        os.environ['WANDB_API_KEY'] = self.wandb_api_key
+        wandb.init(
+            project='real-time-style-transfer',
+            name=self.experiment_name, sync_tensorboard=True
+        )
 
     def _build_models(self):
         self.feature_extractor_model = StyleContentModel(
@@ -81,6 +91,7 @@ class Trainer:
     def compile(
             self, dataset_name: str, image_size: int,
             batch_size: int, learning_rate: float):
+        self._init_wandb()
         self._build_models()
         self._pre_compute_gram()
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
@@ -134,7 +145,6 @@ class Trainer:
         self.train_content_loss.reset_states()
 
     def train(self, epochs: int, log_interval: int):
-
         for epoch in range(1, epochs + 1):
             print('Epoch: ({}/{})'.format(epoch, epochs + 1))
             for data in tqdm(self.dataset):

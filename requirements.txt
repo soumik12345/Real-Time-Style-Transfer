@@ -3,3 +3,5 @@ streamlit==0.76.0
 tensorflow==2.4.1
 tensorflow-addons==0.12.1
 tensorflow-datasets==4.2.0
+wandb~=0.10.19
+tqdm~=4.56.2
