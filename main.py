@@ -10,8 +10,9 @@ trainer = Trainer(
 )
 
 trainer.compile(
-    dataset_name='coco/2014', image_size=256,
-    batch_size=16, learning_rate=1e-3
+    dataset_file_name='train2014.zip',
+    dataset_url='http://images.cocodataset.org/zips/train2014.zip',
+    image_size=256, batch_size=16, learning_rate=1e-3
 )
 
 trainer.train(epochs=2, log_interval=500)

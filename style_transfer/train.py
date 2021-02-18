@@ -82,15 +82,18 @@ class Trainer:
             tf.summary.image('Style Image', self.style_image / 255.0, step=0)
             tf.summary.image('Content Image', self.sample_content_image / 255.0, step=0)
 
-    def _build_dataset(self, dataset_name: str, image_size: int, batch_size: int):
+    def _build_dataset(
+            self, dataset_file_name: str, dataset_url: str,
+            image_size: int, batch_size: int):
         dataloader = Dataloader(image_size=image_size)
         self.dataset = dataloader.get_dataset(
-            dataset_name=dataset_name, batch_size=batch_size
+            dataset_file_name=dataset_file_name,
+            dataset_url=dataset_url, batch_size=batch_size
         )
 
     def compile(
-            self, dataset_name: str, image_size: int,
-            batch_size: int, learning_rate: float):
+            self, dataset_file_name: str, dataset_url: str,
+            image_size: int, batch_size: int, learning_rate: float):
         self._init_wandb()
         self._build_models()
         self._pre_compute_gram()
@@ -99,8 +102,8 @@ class Trainer:
         self._initialize_metrics()
         self._initialize_summary_writer()
         self._build_dataset(
-            dataset_name=dataset_name,
-            image_size=image_size, batch_size=batch_size
+            dataset_file_name=dataset_file_name,
+            dataset_url=dataset_url, image_size=image_size, batch_size=batch_size
         )
 
     @tf.function
