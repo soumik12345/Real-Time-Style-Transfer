@@ -13,3 +13,5 @@ trainer.compile(
     dataset_name='coco/2014', image_size=256,
     batch_size=16, learning_rate=1e-3
 )
+
+trainer.train(epochs=2, log_interval=500)
