@@ -1,11 +1,9 @@
-import os
 from typing import List
 import tensorflow as tf
-from datetime import datetime
 
 from .dataloader import Dataloader
-from .loss import style_loss, content_loss, gram_matrix
 from .utils import gram_matrix, read_image
+from .loss import style_loss, content_loss
 from .models import StyleContentModel, TransformerModel
 
 
@@ -20,6 +18,7 @@ class Trainer:
         self.sample_content_image = read_image(image_file=sample_content_image_file)
         self.content_layers = content_layers
         self.style_layers = style_layers
+        self.dataset = None
         self.feature_extractor_model, self.transformer_model = None, None
         self.style_features, self.gram_style = None, None
         self.optimizer, self.summary_writer = None, None
@@ -69,10 +68,22 @@ class Trainer:
             tf.summary.image('Style Image', self.style_image / 255.0, step=0)
             tf.summary.image('Content Image', self.sample_content_image / 255.0, step=0)
 
-    def compile(self, learning_rate: float):
+    def _build_dataset(self, dataset_name: str, image_size: int, batch_size: int):
+        dataloader = Dataloader(image_size=image_size)
+        self.dataset = dataloader.get_dataset(
+            dataset_name=dataset_name, batch_size=batch_size
+        )
+
+    def compile(
+            self, dataset_name: str, image_size: int,
+            batch_size: int, learning_rate: float):
         self._build_models()
         self._pre_compute_gram()
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
         self._build_checkpoint_manager()
         self._initialize_metrics()
         self._initialize_summary_writer()
+        self._build_dataset(
+            dataset_name=dataset_name,
+            image_size=image_size, batch_size=batch_size
+        )
