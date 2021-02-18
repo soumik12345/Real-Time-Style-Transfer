@@ -1,3 +1,4 @@
+from tqdm import tqdm
 from typing import List
 import tensorflow as tf
 
@@ -12,12 +13,15 @@ class Trainer:
     def __init__(
             self, experiment_name: str,
             style_image_file: str, sample_content_image_file: str,
+            style_weight: float, content_weight: float,
             content_layers: List[str], style_layers: List[str]):
         self.experiment_name = experiment_name
         self.style_image = read_image(image_file=style_image_file)
         self.sample_content_image = read_image(image_file=sample_content_image_file)
         self.content_layers = content_layers
         self.style_layers = style_layers
+        self.style_weight = style_weight
+        self.content_weight = content_weight
         self.dataset = None
         self.feature_extractor_model, self.transformer_model = None, None
         self.style_features, self.gram_style = None, None
@@ -87,3 +91,55 @@ class Trainer:
             dataset_name=dataset_name,
             image_size=image_size, batch_size=batch_size
         )
+
+    @tf.function
+    def _train_step(self, data):
+
+        with tf.GradientTape() as tape:
+
+            transformed_images = self.transformer_model(data)
+            _, content_features = self.feature_extractor_model(data)
+            (
+                style_features_transformed,
+                content_features_transformed
+            ) = self.feature_extractor_model(transformed_images)
+            total_style_loss = self.style_weight * style_loss(
+                self.gram_style, style_features_transformed
+            )
+            total_content_loss = self.content_weight * content_loss(
+                content_features, content_features_transformed
+            )
+            train_loss = total_style_loss + total_content_loss
+
+        gradients = tape.gradient(
+            train_loss, self.transformer_model.trainable_variables
+        )
+        self.optimizer.apply_gradients(
+            zip(gradients, self.transformer_model.trainable_variables)
+        )
+
+        self.train_loss(train_loss)
+        self.train_style_loss(total_style_loss)
+        self.train_content_loss(total_content_loss)
+
+    def _update_tensorboard(self, step: int):
+        with self.summary_writer.as_default():
+            tf.summary.scalar('loss', self.train_loss.result(), step=step)
+            tf.summary.scalar('style_loss', self.train_style_loss.result(), step=step)
+            tf.summary.scalar('content_loss', self.train_content_loss.result(), step=step)
+            sample_styled_image = self.transformer_model(self.sample_content_image)
+            tf.summary.image('Styled Image', sample_styled_image / 255.0, step=step)
+        self.train_loss.reset_states()
+        self.train_style_loss.reset_states()
+        self.train_content_loss.reset_states()
+
+    def train(self, epochs: int, log_interval: int):
+
+        for epoch in range(1, epochs + 1):
+            print('Epoch: ({}/{})'.format(epoch, epochs + 1))
+            for data in tqdm(self.dataset):
+                self._train_step(data=data)
+                self.checkpoint.step.assign_add(1)
+                step = int(self.checkpoint.step)
+                if step % log_interval == 0:
+                    self._update_tensorboard(step=step)
