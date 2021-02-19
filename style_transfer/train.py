@@ -80,8 +80,8 @@ class Trainer:
             './logs/train/{}'.format(self.experiment_name)
         )
         with self.summary_writer.as_default():
-            tf.summary.image('Style Image', self.style_image / 255.0, step=0)
-            tf.summary.image('Content Image', self.sample_content_image / 255.0, step=0)
+            tf.summary.image('Train/style_image', self.style_image / 255.0, step=0)
+            tf.summary.image('Train/content_image', self.sample_content_image / 255.0, step=0)
 
     def compile(
             self, dataset, learning_rate: float):
@@ -126,11 +126,11 @@ class Trainer:
 
     def _update_tensorboard(self, step: int):
         with self.summary_writer.as_default():
-            tf.summary.scalar('loss', self.train_loss.result(), step=step)
-            tf.summary.scalar('style_loss', self.train_style_loss.result(), step=step)
-            tf.summary.scalar('content_loss', self.train_content_loss.result(), step=step)
+            tf.summary.scalar('scalars/loss', self.train_loss.result(), step=step)
+            tf.summary.scalar('scalars/style_loss', self.train_style_loss.result(), step=step)
+            tf.summary.scalar('scalars/content_loss', self.train_content_loss.result(), step=step)
             sample_styled_image = self.transformer_model(self.sample_content_image)
-            tf.summary.image('Styled Image', sample_styled_image / 255.0, step=step)
+            tf.summary.image('Train/styled_image', sample_styled_image / 255.0, step=step)
         self.train_loss.reset_states()
         self.train_style_loss.reset_states()
         self.train_content_loss.reset_states()
@@ -145,3 +145,4 @@ class Trainer:
                 step = int(self.checkpoint.step)
                 if step % log_interval == 0:
                     self._update_tensorboard(step=step)
+                    print('Saved checkpoint: {}'.format(self.checkpoint_manager.save()))
