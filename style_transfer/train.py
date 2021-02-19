@@ -82,18 +82,9 @@ class Trainer:
             tf.summary.image('Style Image', self.style_image / 255.0, step=0)
             tf.summary.image('Content Image', self.sample_content_image / 255.0, step=0)
 
-    def _build_dataset(
-            self, dataset_file_name: str, dataset_url: str,
-            image_size: int, batch_size: int):
-        dataloader = Dataloader(image_size=image_size)
-        self.dataset = dataloader.get_dataset(
-            dataset_file_name=dataset_file_name,
-            dataset_url=dataset_url, batch_size=batch_size
-        )
-
     def compile(
-            self, dataset_file_name: str, dataset_url: str,
-            image_size: int, batch_size: int, learning_rate: float):
+            self, dataset, learning_rate: float):
+        self.dataset = dataset
         self._init_wandb()
         self._build_models()
         self._pre_compute_gram()
@@ -101,10 +92,6 @@ class Trainer:
         self._build_checkpoint_manager()
         self._initialize_metrics()
         self._initialize_summary_writer()
-        self._build_dataset(
-            dataset_file_name=dataset_file_name,
-            dataset_url=dataset_url, image_size=image_size, batch_size=batch_size
-        )
 
     @tf.function
     def _train_step(self, data):

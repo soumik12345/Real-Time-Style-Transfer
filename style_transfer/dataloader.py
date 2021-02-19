@@ -1,4 +1,5 @@
 from glob import glob
+from typing import List
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
@@ -41,12 +42,7 @@ class Dataloader:
         image = tf.cast(image, tf.float32)
         return image
 
-    def get_dataset(self, dataset_file_name: str, dataset_url: str, batch_size: int = 16):
-        dataset_location = tf.keras.utils.get_file(
-            fname=dataset_file_name, origin=dataset_url, extract=True
-        )
-        dataset_location = dataset_location.split('.')[0]
-        image_files = glob(dataset_location + '*.jpg')
+    def get_dataset(self, image_files: List[str], batch_size: int = 16):
         dataset = tf.data.Dataset.from_tensor_slices(image_files)
         dataset = dataset.map(
             self._map_function,

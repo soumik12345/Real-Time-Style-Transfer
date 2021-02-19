@@ -1,5 +1,11 @@
-from style_transfer import Trainer
+from glob import glob
 
+from style_transfer import Trainer
+from style_transfer import Dataloader
+
+
+dataloader = Dataloader(image_size=256)
+dataset = dataloader.get_dataset(glob('./train2014/*.jph'), batch_size=16)
 
 trainer = Trainer(
     experiment_name='experiment_1',
@@ -9,10 +15,6 @@ trainer = Trainer(
     style_layers=['block1_conv2', 'block2_conv2', 'block3_conv3', 'block4_conv3']
 )
 
-trainer.compile(
-    dataset_file_name='train2014.zip',
-    dataset_url='http://images.cocodataset.org/zips/train2014.zip',
-    image_size=256, batch_size=16, learning_rate=1e-3
-)
+trainer.compile(dataset=dataset, learning_rate=1e-3)
 
 trainer.train(epochs=2, log_interval=500)
