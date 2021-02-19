@@ -3,6 +3,7 @@ import wandb
 from tqdm import tqdm
 from typing import List
 import tensorflow as tf
+from tqdm.notebook import tqdm as tqdm_notebook
 
 from .dataloader import Dataloader
 from .utils import gram_matrix, read_image
@@ -134,10 +135,11 @@ class Trainer:
         self.train_style_loss.reset_states()
         self.train_content_loss.reset_states()
 
-    def train(self, epochs: int, log_interval: int):
+    def train(self, epochs: int, log_interval: int, notebook: bool):
         for epoch in range(1, epochs + 1):
             print('Epoch: ({}/{})'.format(epoch, epochs + 1))
-            for data in tqdm(self.dataset):
+            progress_bar = tqdm_notebook if notebook else tqdm
+            for data in progress_bar(self.dataset):
                 self._train_step(data=data)
                 self.checkpoint.step.assign_add(1)
                 step = int(self.checkpoint.step)
