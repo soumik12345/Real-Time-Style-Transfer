@@ -28,9 +28,9 @@ class TransformerModel(tf.keras.Model):
         self.upsample3 = ConvolutionBlock(3, kernel_size=9, strides=1)
 
     def call(self, inputs, *args, **kwargs):
-        x = self.relu(self.norm1(self.conv1(inputs)))
-        x = self.relu(self.norm2(self.conv2(x)))
-        x = self.relu(self.norm3(self.conv3(x)))
+        x = tf.nn.relu(self.norm1(self.conv1(inputs)))
+        x = tf.nn.relu(self.norm2(self.conv2(x)))
+        x = tf.nn.relu(self.norm3(self.conv3(x)))
         for res_block in self.res_blocks:
             x = res_block(x)
         x = tf.nn.relu(self.norm4(self.upsample1(x)))
