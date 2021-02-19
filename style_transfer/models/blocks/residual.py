@@ -21,6 +21,6 @@ class ResidualBlock(tf.keras.Model):
         x = self.norm_1(x)
         x = tf.nn.relu(x)
         x = self.conv_2(x)
-        x = self.norm_2()
+        x = self.norm_2(x)
         x = x + residual
         return x
