@@ -137,7 +137,7 @@ class Trainer:
 
     def train(self, epochs: int, log_interval: int, notebook: bool):
         for epoch in range(1, epochs + 1):
-            print('Epoch: ({}/{})'.format(epoch, epochs + 1))
+            print('Epoch: ({}/{})'.format(epoch, epochs))
             progress_bar = tqdm_notebook if notebook else tqdm
             for data in progress_bar(self.dataset):
                 self._train_step(data=data)
