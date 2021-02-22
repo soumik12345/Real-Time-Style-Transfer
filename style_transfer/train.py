@@ -146,3 +146,6 @@ class Trainer:
                 if step % log_interval == 0:
                     self._update_tensorboard(step=step)
                     print('Saved checkpoint: {}'.format(self.checkpoint_manager.save()))
+
+    def save(self, save_path: str):
+        self.transformer_model.save(save_path, save_format='tf')
