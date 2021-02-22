@@ -1,3 +1,3 @@
 from .reflection_padding import ReflectionPadding2D
-from .conv import ConvolutionBlock, UpsampleBlock
+from .convolution_layers import ConvolutionBlock, UpsampleBlock
 from .residual import ResidualBlock

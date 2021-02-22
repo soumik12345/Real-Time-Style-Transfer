@@ -1,7 +1,7 @@
 import tensorflow as tf
 import tensorflow_addons as tfa
 
-from .conv import ConvolutionBlock
+from .convolution_layers import ConvolutionBlock
 
 
 class ResidualBlock(tf.keras.Model):
