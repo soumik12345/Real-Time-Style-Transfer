@@ -13,10 +13,14 @@ class Inferer:
         self.model = TransformerModel()
         self.model.load_weights(weights_path)
 
-    def infer(self, image_file: str):
+    def infer(self, image_file: str, output_path=None):
         image = read_image(image_file)
         stylized_image = self.model(image)
         stylized_image = tf.cast(
             tf.squeeze(stylized_image), tf.uint8
         ).numpy()
-        return Image.fromarray(stylized_image, mode='RGB')
+        stylized_image = Image.fromarray(stylized_image, mode='RGB')
+        if output_path is not None:
+            stylized_image.save(output_path)
+        else:
+            return stylized_image
