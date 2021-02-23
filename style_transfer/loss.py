@@ -23,3 +23,11 @@ def content_loss(content_features, content_features_transformed):
             )
         ]
     )
+
+
+def total_variation_loss(image):
+    return tf.reduce_mean(
+        tf.square(image[:, :, 1:, :] - image[:, :, :-1, :])
+    ) + tf.reduce_mean(
+        tf.square(image[:, 1:, :, :] - image[:, :-1, :, :])
+    )

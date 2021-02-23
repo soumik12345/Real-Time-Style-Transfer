@@ -5,10 +5,9 @@ from typing import List
 import tensorflow as tf
 from tqdm.notebook import tqdm as tqdm_notebook
 
-from .dataloader import Dataloader
 from .utils import gram_matrix, read_image
-from .loss import style_loss, content_loss
 from .models import StyleContentModel, TransformerModel
+from .loss import style_loss, content_loss, total_variation_loss
 
 
 class Trainer:
@@ -16,7 +15,7 @@ class Trainer:
     def __init__(
             self, experiment_name: str, wandb_api_key: str,
             style_image_file: str, sample_content_image_file: str,
-            style_weight: float, content_weight: float,
+            style_weight: float, content_weight: float, total_variation_weight: float,
             content_layers: List[str], style_layers: List[str]):
         self.experiment_name = experiment_name
         self.wandb_api_key = wandb_api_key
@@ -26,12 +25,14 @@ class Trainer:
         self.style_layers = style_layers
         self.style_weight = style_weight
         self.content_weight = content_weight
+        self.total_variation_weight = total_variation_weight
         self.dataset = None
         self.feature_extractor_model, self.transformer_model = None, None
         self.style_features, self.gram_style = None, None
         self.optimizer, self.summary_writer = None, None
         self.checkpoint, self.checkpoint_manager = None, None
-        self.train_loss, self.train_content_loss, self.train_style_loss = None, None, None
+        self.train_content_loss, self.train_style_loss = None, None
+        self.train_loss, self.tv_loss = None, None
 
     def _init_wandb(self):
         os.environ['WANDB_API_KEY'] = self.wandb_api_key
@@ -74,6 +75,7 @@ class Trainer:
         self.train_loss = tf.keras.metrics.Mean(name='train_loss')
         self.train_style_loss = tf.keras.metrics.Mean(name='train_style_loss')
         self.train_content_loss = tf.keras.metrics.Mean(name='train_content_loss')
+        self.tv_loss = tf.keras.metrics.Mean(name='total_variation_loss')
 
     def _initialize_summary_writer(self):
         self.summary_writer = tf.summary.create_file_writer(
@@ -111,7 +113,8 @@ class Trainer:
             total_content_loss = self.content_weight * content_loss(
                 content_features, content_features_transformed
             )
-            train_loss = total_style_loss + total_content_loss
+            tv_loss = self.total_variation_weight * total_variation_loss(transformed_images)
+            train_loss = total_style_loss + total_content_loss + tv_loss
 
         gradients = tape.gradient(
             train_loss, self.transformer_model.trainable_variables
@@ -123,6 +126,7 @@ class Trainer:
         self.train_loss(train_loss)
         self.train_style_loss(total_style_loss)
         self.train_content_loss(total_content_loss)
+        self.tv_loss(tv_loss)
 
     def _update_tensorboard(self, step: int):
         with self.summary_writer.as_default():
@@ -134,6 +138,7 @@ class Trainer:
         self.train_loss.reset_states()
         self.train_style_loss.reset_states()
         self.train_content_loss.reset_states()
+        self.tv_loss.reset_states()
 
     def train(self, epochs: int, log_interval: int, notebook: bool):
         for epoch in range(1, epochs + 1):
