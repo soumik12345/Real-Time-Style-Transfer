@@ -18,3 +18,11 @@ def gram_matrix(input_tensor):
         input_shape[1] * input_shape[2] * input_shape[3], tf.float32
     )
     return result / num_locations
+
+
+def read_image(image_file: str):
+    image = tf.io.read_file(image_file)
+    image = tf.image.decode_image(image, channels=3)
+    image = tf.cast(image, tf.float32)
+    image = image[tf.newaxis, :]
+    return image

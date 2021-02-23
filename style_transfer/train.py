@@ -153,4 +153,4 @@ class Trainer:
                     print('Saved checkpoint: {}'.format(self.checkpoint_manager.save()))
 
     def save(self, save_path: str):
-        self.transformer_model.save(save_path, save_format='tf')
+        self.transformer_model.save_weights(save_path, save_format='tf')
