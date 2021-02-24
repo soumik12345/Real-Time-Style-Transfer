@@ -30,7 +30,7 @@ def read_image(image_file: str):
 
 
 def plot_result(style, content, stylized):
-    fig = plt.figure(figsize=(12, 12))
+    fig = plt.figure(figsize=(20, 15))
     fig.add_subplot(1, 3, 1).set_title('Style Image')
     _ = plt.imshow(style)
     fig.add_subplot(1, 3, 2).set_title('Stylized Image')
