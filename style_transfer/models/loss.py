@@ -15,9 +15,9 @@ def content_loss(content_outputs, content_target):
     ]) / len(content_outputs)
 
 
-def total_variation_loss(img):
+def total_variation_loss(image):
     return tf.reduce_mean(
-        tf.square(img[:, :, 1:, :] - img[:, :, :-1, :])
+        tf.square(image[:, :, 1:, :] - image[:, :, :-1, :])
     ) + tf.reduce_mean(
-        tf.square(img[:, 1:, :, :] - img[:, :-1, :, :])
+        tf.square(image[:, 1:, :, :] - image[:, :-1, :, :])
     )
