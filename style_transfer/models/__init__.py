@@ -1,2 +1,2 @@
-from .transformer import TransformerModel
-from .style_content import StyleContentModel
+from .transformer_model import TransformerModel
+from .style_content_model import StyleContentModel
