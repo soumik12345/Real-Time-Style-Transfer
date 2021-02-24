@@ -1,4 +1,5 @@
 import tensorflow as tf
+from matplotlib import pyplot as plt
 
 
 def read_image(image_file):
@@ -26,3 +27,14 @@ def read_image(image_file: str):
     image = tf.cast(image, tf.float32)
     image = image[tf.newaxis, :]
     return image
+
+
+def plot_result(style, content, stylized):
+    fig = plt.figure(figsize=(12, 12))
+    fig.add_subplot(1, 3, 1).set_title('Style Image')
+    _ = plt.imshow(style)
+    fig.add_subplot(1, 3, 2).set_title('Stylized Image')
+    _ = plt.imshow(stylized)
+    fig.add_subplot(1, 3, 3).set_title('Content Image')
+    _ = plt.imshow(content)
+    plt.show()
