@@ -3,6 +3,7 @@ from datetime import datetime
 from wandb.keras import WandbCallback
 
 from style_transfer.utils import init_wandb
+from style_transfer.infer import InferenceCallback
 from style_transfer import StyleTransferModel, Dataloader
 
 
@@ -30,6 +31,10 @@ model.fit(
     dataset, epochs=2,
     callbacks=[
         WandbCallback(),
+        InferenceCallback(
+            log_dir=log_dir, style_image=model.style_image,
+            sample_content_image=model.sample_content_image
+        ),
         tf.keras.callbacks.TensorBoard(
                 log_dir=log_dir, histogram_freq=1,
                 update_freq=50, write_images=True

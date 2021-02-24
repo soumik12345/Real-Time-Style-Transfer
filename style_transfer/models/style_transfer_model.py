@@ -91,3 +91,9 @@ class StyleTransferModel(tf.keras.Model):
             filepath=filepath, overwrite=overwrite,
             save_format=save_format, options=options
         )
+
+    def load_weights(self, filepath, by_name=False, skip_mismatch=False, options=None):
+        self.transformer_model.load_weights(
+            filepath=filepath, by_name=by_name,
+            skip_mismatch=skip_mismatch, options=options
+        )
