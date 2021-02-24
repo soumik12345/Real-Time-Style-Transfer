@@ -1,4 +1,14 @@
+import os
+import wandb
 import tensorflow as tf
+
+
+def init_wandb(project_name: str, experiment_name: str, wandb_api_key: str):
+    os.environ['WANDB_API_KEY'] = wandb_api_key
+    wandb.init(
+        project=project_name,
+        name=experiment_name, sync_tensorboard=True
+    )
 
 
 def read_image(image_file, image_size):

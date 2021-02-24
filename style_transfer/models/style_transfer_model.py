@@ -75,6 +75,14 @@ class StyleTransferModel(tf.keras.Model):
             'total_loss': total_loss
         }
 
+    def summary(self, line_length=None, positions=None, print_fn=None):
+        self.transformer_model.summary(
+            line_length=line_length, positions=positions, print_fn=print_fn
+        )
+        self.feature_extractor.summary(
+            line_length=line_length, positions=positions, print_fn=print_fn
+        )
+
     def call(self, inputs, training=False, *args, **kwargs):
         return self.transformer_model(inputs, training=training)
 
