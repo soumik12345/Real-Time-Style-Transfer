@@ -58,6 +58,12 @@ class StyleTransferModel:
         self._initialize_metrics()
         self._initialize_summary_writer(log_dir=log_dir)
 
+    def _reset_metrics(self):
+        self.loss_metrics['style_loss'].reset_states()
+        self.loss_metrics['content_loss'].reset_states()
+        self.loss_metrics['total_variation_loss'].reset_states()
+        self.loss_metrics['total_loss'].reset_states()
+
     def _update_tensorboard(self, step: int):
         with self.summary_writer.as_default():
             tf.summary.scalar(
@@ -81,10 +87,7 @@ class StyleTransferModel:
                 'Train/styled_image',
                 sample_styled_image / 255.0, step=step
             )
-        self.loss_metrics['style_loss'].reset_states()
-        self.loss_metrics['content_loss'].reset_states()
-        self.loss_metrics['total_variation_loss'].reset_states()
-        self.loss_metrics['total_loss'].reset_states()
+        self._reset_metrics()
 
     @tf.function
     def train_step(self, data):
@@ -120,10 +123,13 @@ class StyleTransferModel:
     def train(self, dataset, epochs: int, log_interval: int, notebook: bool):
         progress_bar = tqdm_notebook if notebook else tqdm
         for epoch in range(1, epochs + 1):
-            for step, image in progress_bar(enumerate(dataset)):
+            print('Epoch: ({}/{})'.format(epoch, epochs))
+            step = 1
+            for image in progress_bar(dataset):
                 self.train_step(data=image)
                 if step % log_interval == 0:
                     self._update_tensorboard(step=step)
+                step += 1
 
     def save_weights(self, filepath, overwrite=True, save_format=None, options=None):
         self.transformer_model.save_weights(
