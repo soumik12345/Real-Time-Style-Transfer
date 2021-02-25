@@ -118,15 +118,10 @@ class StyleTransferModel:
         self.loss_metrics['total_variation_loss'](_tv_loss)
 
     def train(self, dataset, epochs: int, log_interval: int, notebook: bool):
-        data = tf.zeros(
-            (self.batch_size, self.image_size, self.image_size, 3), dtype=tf.float32
-        )
         progress_bar = tqdm_notebook if notebook else tqdm
         for epoch in range(1, epochs + 1):
             for step, image in progress_bar(enumerate(dataset)):
-                for j, image_p in enumerate(image):
-                    data[j] = image_p
-                self.train_step(data)
+                self.train_step(data=image)
                 if step % log_interval == 0:
                     self._update_tensorboard(step=step)
 
